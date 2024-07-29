@@ -1,0 +1,95 @@
+name: Build quree-scan-miniapp with nginx
+
+on:
+  push:
+    tags: ['v\d+']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: maxnrm-dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Create IAM token
+        id: iam-token-generation
+        uses: bigtows/yc-token@1.0
+        with:
+          service-account-token: ${{ secrets.SERVICE_ACCOUNT_TOKEN }}
+          type-token: iam
+
+      - name: Kaniko build tg-miniapp
+        uses: aevea/action-kaniko@v0.11.0
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ steps.iam-token-generation.outputs.iam-token }}
+          image: quree-tg-miniapp
+          extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
+          tag: ${{ env.RELEASE_VERSION }}
+          tag_with_latest: false
+          build_file: ./build/tg-miniapp/Dockerfile
+
+      - name: Kaniko build tg-update
+        uses: aevea/action-kaniko@v0.11.0
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ steps.iam-token-generation.outputs.iam-token }}
+          image: quree-tg-update
+          extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
+          tag: ${{ env.RELEASE_VERSION }}
+          tag_with_latest: false
+          build_file: ./build/tg-update/Dockerfile
+
+      - name: Kaniko build tg-pusher
+        uses: aevea/action-kaniko@v0.11.0
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ steps.iam-token-generation.outputs.iam-token }}
+          image: quree-tg-pusher
+          extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
+          tag: ${{ env.RELEASE_VERSION }}
+          tag_with_latest: false
+          build_file: ./build/tg-pusher/Dockerfile
+
+      - name: Kaniko build tg-placeholder
+        uses: aevea/action-kaniko@v0.11.0
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ steps.iam-token-generation.outputs.iam-token }}
+          image: quree-tg-placeholder
+          extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
+          tag: ${{ env.RELEASE_VERSION }}
+          tag_with_latest: false
+          build_file: ./build/tg-placeholder/Dockerfile
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment: maxnrm-dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Set kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > config.yaml
+
+      - uses: azure/setup-helm@v3
+        id: install
+        with:
+          version: "v3.13.3"
+
+      - name: Upgrade quree
+        run: |
+          helm install quree -n quree deploy/helm \
+          --set apps.tg-miniapp.image.tag=v38 \
+          --set apps.tg-update.image.tag=v38 \
+          --set apps.tg-pusher.image.tag=v38 \
+          --set apps.tg-placeholder.image.tag=v38 \
