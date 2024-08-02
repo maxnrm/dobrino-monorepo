@@ -16,54 +16,54 @@ import (
 )
 
 var (
-	Q                 = new(Query)
-	Admin             *admin
-	BroadcastMessages *broadcastMessages
-	Buttons           *buttons
-	File              *file
-	User              *user
+	Q                = new(Query)
+	Admin            *admin
+	BroadcastMessage *broadcastMessage
+	Button           *button
+	File             *file
+	User             *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Admin = &Q.Admin
-	BroadcastMessages = &Q.BroadcastMessages
-	Buttons = &Q.Buttons
+	BroadcastMessage = &Q.BroadcastMessage
+	Button = &Q.Button
 	File = &Q.File
 	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                db,
-		Admin:             newAdmin(db, opts...),
-		BroadcastMessages: newBroadcastMessages(db, opts...),
-		Buttons:           newButtons(db, opts...),
-		File:              newFile(db, opts...),
-		User:              newUser(db, opts...),
+		db:               db,
+		Admin:            newAdmin(db, opts...),
+		BroadcastMessage: newBroadcastMessage(db, opts...),
+		Button:           newButton(db, opts...),
+		File:             newFile(db, opts...),
+		User:             newUser(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Admin             admin
-	BroadcastMessages broadcastMessages
-	Buttons           buttons
-	File              file
-	User              user
+	Admin            admin
+	BroadcastMessage broadcastMessage
+	Button           button
+	File             file
+	User             user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                db,
-		Admin:             q.Admin.clone(db),
-		BroadcastMessages: q.BroadcastMessages.clone(db),
-		Buttons:           q.Buttons.clone(db),
-		File:              q.File.clone(db),
-		User:              q.User.clone(db),
+		db:               db,
+		Admin:            q.Admin.clone(db),
+		BroadcastMessage: q.BroadcastMessage.clone(db),
+		Button:           q.Button.clone(db),
+		File:             q.File.clone(db),
+		User:             q.User.clone(db),
 	}
 }
 
@@ -77,30 +77,30 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                db,
-		Admin:             q.Admin.replaceDB(db),
-		BroadcastMessages: q.BroadcastMessages.replaceDB(db),
-		Buttons:           q.Buttons.replaceDB(db),
-		File:              q.File.replaceDB(db),
-		User:              q.User.replaceDB(db),
+		db:               db,
+		Admin:            q.Admin.replaceDB(db),
+		BroadcastMessage: q.BroadcastMessage.replaceDB(db),
+		Button:           q.Button.replaceDB(db),
+		File:             q.File.replaceDB(db),
+		User:             q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Admin             IAdminDo
-	BroadcastMessages IBroadcastMessagesDo
-	Buttons           IButtonsDo
-	File              IFileDo
-	User              IUserDo
+	Admin            IAdminDo
+	BroadcastMessage IBroadcastMessageDo
+	Button           IButtonDo
+	File             IFileDo
+	User             IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Admin:             q.Admin.WithContext(ctx),
-		BroadcastMessages: q.BroadcastMessages.WithContext(ctx),
-		Buttons:           q.Buttons.WithContext(ctx),
-		File:              q.File.WithContext(ctx),
-		User:              q.User.WithContext(ctx),
+		Admin:            q.Admin.WithContext(ctx),
+		BroadcastMessage: q.BroadcastMessage.WithContext(ctx),
+		Button:           q.Button.WithContext(ctx),
+		File:             q.File.WithContext(ctx),
+		User:             q.User.WithContext(ctx),
 	}
 }
 

@@ -41,8 +41,8 @@ func main() {
 	g.ApplyBasic(
 		g.GenerateModelAs("users", "User"),
 		g.GenerateModelAs("admins", "Admin"),
-		g.GenerateModelAs("broadcast_messages", "BroadcastMessages"),
-		g.GenerateModelAs("buttons", "Buttons"),
+		g.GenerateModelAs("broadcast_messages", "BroadcastMessage"),
+		g.GenerateModelAs("buttons", "Button"),
 		g.GenerateModelAs("directus_files", "File"),
 	)
 

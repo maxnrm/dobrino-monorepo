@@ -4,10 +4,10 @@
 
 package dbmodels
 
-const TableNameButtons = "buttons"
+const TableNameButton = "buttons"
 
-// Buttons mapped from table <buttons>
-type Buttons struct {
+// Button mapped from table <buttons>
+type Button struct {
 	ID      string  `gorm:"column:id;type:uuid;primaryKey" json:"id"`
 	Sort    int32   `gorm:"column:sort;type:integer;not null;default:1" json:"sort"`
 	Name    string  `gorm:"column:name;type:character varying(255);not null;default:NULL" json:"name"`
@@ -15,7 +15,7 @@ type Buttons struct {
 	Image   *string `gorm:"column:image;type:uuid" json:"image"`
 }
 
-// TableName Buttons's table name
-func (*Buttons) TableName() string {
-	return TableNameButtons
+// TableName Button's table name
+func (*Button) TableName() string {
+	return TableNameButton
 }

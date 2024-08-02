@@ -19,27 +19,27 @@ import (
 	"dobrino/internal/pg/dbmodels"
 )
 
-func newButtons(db *gorm.DB, opts ...gen.DOOption) buttons {
-	_buttons := buttons{}
+func newButton(db *gorm.DB, opts ...gen.DOOption) button {
+	_button := button{}
 
-	_buttons.buttonsDo.UseDB(db, opts...)
-	_buttons.buttonsDo.UseModel(&dbmodels.Buttons{})
+	_button.buttonDo.UseDB(db, opts...)
+	_button.buttonDo.UseModel(&dbmodels.Button{})
 
-	tableName := _buttons.buttonsDo.TableName()
-	_buttons.ALL = field.NewAsterisk(tableName)
-	_buttons.ID = field.NewString(tableName, "id")
-	_buttons.Sort = field.NewInt32(tableName, "sort")
-	_buttons.Name = field.NewString(tableName, "name")
-	_buttons.Message = field.NewString(tableName, "message")
-	_buttons.Image = field.NewString(tableName, "image")
+	tableName := _button.buttonDo.TableName()
+	_button.ALL = field.NewAsterisk(tableName)
+	_button.ID = field.NewString(tableName, "id")
+	_button.Sort = field.NewInt32(tableName, "sort")
+	_button.Name = field.NewString(tableName, "name")
+	_button.Message = field.NewString(tableName, "message")
+	_button.Image = field.NewString(tableName, "image")
 
-	_buttons.fillFieldMap()
+	_button.fillFieldMap()
 
-	return _buttons
+	return _button
 }
 
-type buttons struct {
-	buttonsDo
+type button struct {
+	buttonDo
 
 	ALL     field.Asterisk
 	ID      field.String
@@ -51,17 +51,17 @@ type buttons struct {
 	fieldMap map[string]field.Expr
 }
 
-func (b buttons) Table(newTableName string) *buttons {
-	b.buttonsDo.UseTable(newTableName)
+func (b button) Table(newTableName string) *button {
+	b.buttonDo.UseTable(newTableName)
 	return b.updateTableName(newTableName)
 }
 
-func (b buttons) As(alias string) *buttons {
-	b.buttonsDo.DO = *(b.buttonsDo.As(alias).(*gen.DO))
+func (b button) As(alias string) *button {
+	b.buttonDo.DO = *(b.buttonDo.As(alias).(*gen.DO))
 	return b.updateTableName(alias)
 }
 
-func (b *buttons) updateTableName(table string) *buttons {
+func (b *button) updateTableName(table string) *button {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewString(table, "id")
 	b.Sort = field.NewInt32(table, "sort")
@@ -74,7 +74,7 @@ func (b *buttons) updateTableName(table string) *buttons {
 	return b
 }
 
-func (b *buttons) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (b *button) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := b.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -83,7 +83,7 @@ func (b *buttons) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	return _oe, ok
 }
 
-func (b *buttons) fillFieldMap() {
+func (b *button) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 5)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["sort"] = b.Sort
@@ -92,58 +92,58 @@ func (b *buttons) fillFieldMap() {
 	b.fieldMap["image"] = b.Image
 }
 
-func (b buttons) clone(db *gorm.DB) buttons {
-	b.buttonsDo.ReplaceConnPool(db.Statement.ConnPool)
+func (b button) clone(db *gorm.DB) button {
+	b.buttonDo.ReplaceConnPool(db.Statement.ConnPool)
 	return b
 }
 
-func (b buttons) replaceDB(db *gorm.DB) buttons {
-	b.buttonsDo.ReplaceDB(db)
+func (b button) replaceDB(db *gorm.DB) button {
+	b.buttonDo.ReplaceDB(db)
 	return b
 }
 
-type buttonsDo struct{ gen.DO }
+type buttonDo struct{ gen.DO }
 
-type IButtonsDo interface {
+type IButtonDo interface {
 	gen.SubQuery
-	Debug() IButtonsDo
-	WithContext(ctx context.Context) IButtonsDo
+	Debug() IButtonDo
+	WithContext(ctx context.Context) IButtonDo
 	WithResult(fc func(tx gen.Dao)) gen.ResultInfo
 	ReplaceDB(db *gorm.DB)
-	ReadDB() IButtonsDo
-	WriteDB() IButtonsDo
+	ReadDB() IButtonDo
+	WriteDB() IButtonDo
 	As(alias string) gen.Dao
-	Session(config *gorm.Session) IButtonsDo
+	Session(config *gorm.Session) IButtonDo
 	Columns(cols ...field.Expr) gen.Columns
-	Clauses(conds ...clause.Expression) IButtonsDo
-	Not(conds ...gen.Condition) IButtonsDo
-	Or(conds ...gen.Condition) IButtonsDo
-	Select(conds ...field.Expr) IButtonsDo
-	Where(conds ...gen.Condition) IButtonsDo
-	Order(conds ...field.Expr) IButtonsDo
-	Distinct(cols ...field.Expr) IButtonsDo
-	Omit(cols ...field.Expr) IButtonsDo
-	Join(table schema.Tabler, on ...field.Expr) IButtonsDo
-	LeftJoin(table schema.Tabler, on ...field.Expr) IButtonsDo
-	RightJoin(table schema.Tabler, on ...field.Expr) IButtonsDo
-	Group(cols ...field.Expr) IButtonsDo
-	Having(conds ...gen.Condition) IButtonsDo
-	Limit(limit int) IButtonsDo
-	Offset(offset int) IButtonsDo
+	Clauses(conds ...clause.Expression) IButtonDo
+	Not(conds ...gen.Condition) IButtonDo
+	Or(conds ...gen.Condition) IButtonDo
+	Select(conds ...field.Expr) IButtonDo
+	Where(conds ...gen.Condition) IButtonDo
+	Order(conds ...field.Expr) IButtonDo
+	Distinct(cols ...field.Expr) IButtonDo
+	Omit(cols ...field.Expr) IButtonDo
+	Join(table schema.Tabler, on ...field.Expr) IButtonDo
+	LeftJoin(table schema.Tabler, on ...field.Expr) IButtonDo
+	RightJoin(table schema.Tabler, on ...field.Expr) IButtonDo
+	Group(cols ...field.Expr) IButtonDo
+	Having(conds ...gen.Condition) IButtonDo
+	Limit(limit int) IButtonDo
+	Offset(offset int) IButtonDo
 	Count() (count int64, err error)
-	Scopes(funcs ...func(gen.Dao) gen.Dao) IButtonsDo
-	Unscoped() IButtonsDo
-	Create(values ...*dbmodels.Buttons) error
-	CreateInBatches(values []*dbmodels.Buttons, batchSize int) error
-	Save(values ...*dbmodels.Buttons) error
-	First() (*dbmodels.Buttons, error)
-	Take() (*dbmodels.Buttons, error)
-	Last() (*dbmodels.Buttons, error)
-	Find() ([]*dbmodels.Buttons, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*dbmodels.Buttons, err error)
-	FindInBatches(result *[]*dbmodels.Buttons, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Scopes(funcs ...func(gen.Dao) gen.Dao) IButtonDo
+	Unscoped() IButtonDo
+	Create(values ...*dbmodels.Button) error
+	CreateInBatches(values []*dbmodels.Button, batchSize int) error
+	Save(values ...*dbmodels.Button) error
+	First() (*dbmodels.Button, error)
+	Take() (*dbmodels.Button, error)
+	Last() (*dbmodels.Button, error)
+	Find() ([]*dbmodels.Button, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*dbmodels.Button, err error)
+	FindInBatches(result *[]*dbmodels.Button, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*dbmodels.Buttons) (info gen.ResultInfo, err error)
+	Delete(...*dbmodels.Button) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -151,163 +151,163 @@ type IButtonsDo interface {
 	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
-	Attrs(attrs ...field.AssignExpr) IButtonsDo
-	Assign(attrs ...field.AssignExpr) IButtonsDo
-	Joins(fields ...field.RelationField) IButtonsDo
-	Preload(fields ...field.RelationField) IButtonsDo
-	FirstOrInit() (*dbmodels.Buttons, error)
-	FirstOrCreate() (*dbmodels.Buttons, error)
-	FindByPage(offset int, limit int) (result []*dbmodels.Buttons, count int64, err error)
+	Attrs(attrs ...field.AssignExpr) IButtonDo
+	Assign(attrs ...field.AssignExpr) IButtonDo
+	Joins(fields ...field.RelationField) IButtonDo
+	Preload(fields ...field.RelationField) IButtonDo
+	FirstOrInit() (*dbmodels.Button, error)
+	FirstOrCreate() (*dbmodels.Button, error)
+	FindByPage(offset int, limit int) (result []*dbmodels.Button, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Scan(result interface{}) (err error)
-	Returning(value interface{}, columns ...string) IButtonsDo
+	Returning(value interface{}, columns ...string) IButtonDo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 }
 
-func (b buttonsDo) Debug() IButtonsDo {
+func (b buttonDo) Debug() IButtonDo {
 	return b.withDO(b.DO.Debug())
 }
 
-func (b buttonsDo) WithContext(ctx context.Context) IButtonsDo {
+func (b buttonDo) WithContext(ctx context.Context) IButtonDo {
 	return b.withDO(b.DO.WithContext(ctx))
 }
 
-func (b buttonsDo) ReadDB() IButtonsDo {
+func (b buttonDo) ReadDB() IButtonDo {
 	return b.Clauses(dbresolver.Read)
 }
 
-func (b buttonsDo) WriteDB() IButtonsDo {
+func (b buttonDo) WriteDB() IButtonDo {
 	return b.Clauses(dbresolver.Write)
 }
 
-func (b buttonsDo) Session(config *gorm.Session) IButtonsDo {
+func (b buttonDo) Session(config *gorm.Session) IButtonDo {
 	return b.withDO(b.DO.Session(config))
 }
 
-func (b buttonsDo) Clauses(conds ...clause.Expression) IButtonsDo {
+func (b buttonDo) Clauses(conds ...clause.Expression) IButtonDo {
 	return b.withDO(b.DO.Clauses(conds...))
 }
 
-func (b buttonsDo) Returning(value interface{}, columns ...string) IButtonsDo {
+func (b buttonDo) Returning(value interface{}, columns ...string) IButtonDo {
 	return b.withDO(b.DO.Returning(value, columns...))
 }
 
-func (b buttonsDo) Not(conds ...gen.Condition) IButtonsDo {
+func (b buttonDo) Not(conds ...gen.Condition) IButtonDo {
 	return b.withDO(b.DO.Not(conds...))
 }
 
-func (b buttonsDo) Or(conds ...gen.Condition) IButtonsDo {
+func (b buttonDo) Or(conds ...gen.Condition) IButtonDo {
 	return b.withDO(b.DO.Or(conds...))
 }
 
-func (b buttonsDo) Select(conds ...field.Expr) IButtonsDo {
+func (b buttonDo) Select(conds ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.Select(conds...))
 }
 
-func (b buttonsDo) Where(conds ...gen.Condition) IButtonsDo {
+func (b buttonDo) Where(conds ...gen.Condition) IButtonDo {
 	return b.withDO(b.DO.Where(conds...))
 }
 
-func (b buttonsDo) Order(conds ...field.Expr) IButtonsDo {
+func (b buttonDo) Order(conds ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.Order(conds...))
 }
 
-func (b buttonsDo) Distinct(cols ...field.Expr) IButtonsDo {
+func (b buttonDo) Distinct(cols ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.Distinct(cols...))
 }
 
-func (b buttonsDo) Omit(cols ...field.Expr) IButtonsDo {
+func (b buttonDo) Omit(cols ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.Omit(cols...))
 }
 
-func (b buttonsDo) Join(table schema.Tabler, on ...field.Expr) IButtonsDo {
+func (b buttonDo) Join(table schema.Tabler, on ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.Join(table, on...))
 }
 
-func (b buttonsDo) LeftJoin(table schema.Tabler, on ...field.Expr) IButtonsDo {
+func (b buttonDo) LeftJoin(table schema.Tabler, on ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.LeftJoin(table, on...))
 }
 
-func (b buttonsDo) RightJoin(table schema.Tabler, on ...field.Expr) IButtonsDo {
+func (b buttonDo) RightJoin(table schema.Tabler, on ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.RightJoin(table, on...))
 }
 
-func (b buttonsDo) Group(cols ...field.Expr) IButtonsDo {
+func (b buttonDo) Group(cols ...field.Expr) IButtonDo {
 	return b.withDO(b.DO.Group(cols...))
 }
 
-func (b buttonsDo) Having(conds ...gen.Condition) IButtonsDo {
+func (b buttonDo) Having(conds ...gen.Condition) IButtonDo {
 	return b.withDO(b.DO.Having(conds...))
 }
 
-func (b buttonsDo) Limit(limit int) IButtonsDo {
+func (b buttonDo) Limit(limit int) IButtonDo {
 	return b.withDO(b.DO.Limit(limit))
 }
 
-func (b buttonsDo) Offset(offset int) IButtonsDo {
+func (b buttonDo) Offset(offset int) IButtonDo {
 	return b.withDO(b.DO.Offset(offset))
 }
 
-func (b buttonsDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IButtonsDo {
+func (b buttonDo) Scopes(funcs ...func(gen.Dao) gen.Dao) IButtonDo {
 	return b.withDO(b.DO.Scopes(funcs...))
 }
 
-func (b buttonsDo) Unscoped() IButtonsDo {
+func (b buttonDo) Unscoped() IButtonDo {
 	return b.withDO(b.DO.Unscoped())
 }
 
-func (b buttonsDo) Create(values ...*dbmodels.Buttons) error {
+func (b buttonDo) Create(values ...*dbmodels.Button) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Create(values)
 }
 
-func (b buttonsDo) CreateInBatches(values []*dbmodels.Buttons, batchSize int) error {
+func (b buttonDo) CreateInBatches(values []*dbmodels.Button, batchSize int) error {
 	return b.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (b buttonsDo) Save(values ...*dbmodels.Buttons) error {
+func (b buttonDo) Save(values ...*dbmodels.Button) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Save(values)
 }
 
-func (b buttonsDo) First() (*dbmodels.Buttons, error) {
+func (b buttonDo) First() (*dbmodels.Button, error) {
 	if result, err := b.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*dbmodels.Buttons), nil
+		return result.(*dbmodels.Button), nil
 	}
 }
 
-func (b buttonsDo) Take() (*dbmodels.Buttons, error) {
+func (b buttonDo) Take() (*dbmodels.Button, error) {
 	if result, err := b.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*dbmodels.Buttons), nil
+		return result.(*dbmodels.Button), nil
 	}
 }
 
-func (b buttonsDo) Last() (*dbmodels.Buttons, error) {
+func (b buttonDo) Last() (*dbmodels.Button, error) {
 	if result, err := b.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*dbmodels.Buttons), nil
+		return result.(*dbmodels.Button), nil
 	}
 }
 
-func (b buttonsDo) Find() ([]*dbmodels.Buttons, error) {
+func (b buttonDo) Find() ([]*dbmodels.Button, error) {
 	result, err := b.DO.Find()
-	return result.([]*dbmodels.Buttons), err
+	return result.([]*dbmodels.Button), err
 }
 
-func (b buttonsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*dbmodels.Buttons, err error) {
-	buf := make([]*dbmodels.Buttons, 0, batchSize)
+func (b buttonDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*dbmodels.Button, err error) {
+	buf := make([]*dbmodels.Button, 0, batchSize)
 	err = b.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -315,49 +315,49 @@ func (b buttonsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) err
 	return results, err
 }
 
-func (b buttonsDo) FindInBatches(result *[]*dbmodels.Buttons, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (b buttonDo) FindInBatches(result *[]*dbmodels.Button, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return b.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (b buttonsDo) Attrs(attrs ...field.AssignExpr) IButtonsDo {
+func (b buttonDo) Attrs(attrs ...field.AssignExpr) IButtonDo {
 	return b.withDO(b.DO.Attrs(attrs...))
 }
 
-func (b buttonsDo) Assign(attrs ...field.AssignExpr) IButtonsDo {
+func (b buttonDo) Assign(attrs ...field.AssignExpr) IButtonDo {
 	return b.withDO(b.DO.Assign(attrs...))
 }
 
-func (b buttonsDo) Joins(fields ...field.RelationField) IButtonsDo {
+func (b buttonDo) Joins(fields ...field.RelationField) IButtonDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Joins(_f))
 	}
 	return &b
 }
 
-func (b buttonsDo) Preload(fields ...field.RelationField) IButtonsDo {
+func (b buttonDo) Preload(fields ...field.RelationField) IButtonDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Preload(_f))
 	}
 	return &b
 }
 
-func (b buttonsDo) FirstOrInit() (*dbmodels.Buttons, error) {
+func (b buttonDo) FirstOrInit() (*dbmodels.Button, error) {
 	if result, err := b.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*dbmodels.Buttons), nil
+		return result.(*dbmodels.Button), nil
 	}
 }
 
-func (b buttonsDo) FirstOrCreate() (*dbmodels.Buttons, error) {
+func (b buttonDo) FirstOrCreate() (*dbmodels.Button, error) {
 	if result, err := b.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*dbmodels.Buttons), nil
+		return result.(*dbmodels.Button), nil
 	}
 }
 
-func (b buttonsDo) FindByPage(offset int, limit int) (result []*dbmodels.Buttons, count int64, err error) {
+func (b buttonDo) FindByPage(offset int, limit int) (result []*dbmodels.Button, count int64, err error) {
 	result, err = b.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -372,7 +372,7 @@ func (b buttonsDo) FindByPage(offset int, limit int) (result []*dbmodels.Buttons
 	return
 }
 
-func (b buttonsDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (b buttonDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = b.Count()
 	if err != nil {
 		return
@@ -382,15 +382,15 @@ func (b buttonsDo) ScanByPage(result interface{}, offset int, limit int) (count 
 	return
 }
 
-func (b buttonsDo) Scan(result interface{}) (err error) {
+func (b buttonDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b buttonsDo) Delete(models ...*dbmodels.Buttons) (result gen.ResultInfo, err error) {
+func (b buttonDo) Delete(models ...*dbmodels.Button) (result gen.ResultInfo, err error) {
 	return b.DO.Delete(models)
 }
 
-func (b *buttonsDo) withDO(do gen.Dao) *buttonsDo {
+func (b *buttonDo) withDO(do gen.Dao) *buttonDo {
 	b.DO = *do.(*gen.DO)
 	return b
 }
