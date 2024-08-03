@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"dobrino/config"
 	"dobrino/internal/pg"
 	"dobrino/internal/pg/dbmodels"
@@ -10,7 +11,9 @@ import (
 	"hash/fnv"
 	"sync"
 
+	"github.com/leonid-shevtsov/telegold"
 	fm "github.com/maxnrm/teleflood/pkg/message"
+	"github.com/yuin/goldmark"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -69,10 +72,8 @@ func (b Button) FromDB(dbButton *dbmodels.Button, replyKeyboard [][]tele.ReplyBu
 		return Button{}, err
 	}
 
-	btnMessage.SendOptions = &tele.SendOptions{
-		ReplyMarkup: &tele.ReplyMarkup{
-			ReplyKeyboard: replyKeyboard,
-		},
+	btnMessage.SendOptions.ReplyMarkup = &tele.ReplyMarkup{
+		ReplyKeyboard: replyKeyboard,
 	}
 
 	button := Button{
@@ -86,15 +87,25 @@ func (b Button) FromDB(dbButton *dbmodels.Button, replyKeyboard [][]tele.ReplyBu
 }
 
 func FloodMessageFromDBButton(dbButton *dbmodels.Button) (*fm.FloodMessage, error) {
-	message := &fm.FloodMessage{}
+	// set parseMode HTML as default
+	// as we are using goldmark and telegold
+	message := &fm.FloodMessage{
+		SendOptions: &tele.SendOptions{
+			ParseMode: tele.ModeHTML,
+		},
+	}
+
+	var msgBuf bytes.Buffer
+	md := goldmark.New(goldmark.WithRenderer(telegold.NewRenderer()))
 
 	switch {
 	case dbButton.Image != nil && dbButton.Message != nil:
 		photoURL := config.IMGPROXY_PUBLIC_URL + *dbButton.Image
+		md.Convert([]byte(*dbButton.Message), &msgBuf) // just use it as usual
 
 		message.Photo = &tele.Photo{
 			File:    tele.File{FileURL: photoURL},
-			Caption: *dbButton.Message,
+			Caption: msgBuf.String(),
 		}
 
 		message.Type = fm.Photo
@@ -111,7 +122,9 @@ func FloodMessageFromDBButton(dbButton *dbmodels.Button) (*fm.FloodMessage, erro
 
 		return message, nil
 	case dbButton.Message != nil:
-		message.Text = dbButton.Message
+		md.Convert([]byte(*dbButton.Message), &msgBuf) // just use it as usual
+		text := msgBuf.String()
+		message.Text = &text
 		message.Type = fm.Text
 		return message, nil
 	}
@@ -196,12 +209,12 @@ func (bs *Buttons) UpdateButtons(db *pg.PG, bot *tele.Bot) error {
 
 		for _, b := range bs.buttons {
 			// remove handlers for removed buttons
-			bot.Handle(b.B.Text, nil)
+			bot.Handle(b.B.Text, func(c tele.Context) error { return nil })
 		}
 	case len(dbButtons) > 0 && bs.buttons != nil:
 		for _, b := range bs.buttons {
 			// remove handlers for removed buttons
-			bot.Handle(b.B.Text, nil)
+			bot.Handle(b.B.Text, func(c tele.Context) error { return nil })
 		}
 
 		bs.updateButtons(dbButtons, bot)
