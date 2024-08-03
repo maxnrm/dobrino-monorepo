@@ -44,7 +44,7 @@ func InitButtons(db *pg.PG, bot *tele.Bot) (*Buttons, error) {
 
 	bs.hash = hex.EncodeToString(hash.Sum(nil))
 
-	bs.updateButtons(dbButtons, bot)
+	bs.updateButtons(dbButtons)
 
 	return bs, nil
 }
@@ -54,26 +54,11 @@ type Button struct {
 	FloodMessage *fm.FloodMessage
 }
 
-func (b *Button) HandlerFunc() tele.HandlerFunc {
-	return func(c tele.Context) error {
-
-		msg := b.FloodMessage
-
-		msg.Recipient = fm.Recipient{ChatId: fmt.Sprint(c.Chat().ID)}
-
-		return c.Send(msg, msg.SendOptions)
-	}
-}
-
-func (b Button) FromDB(dbButton *dbmodels.Button, replyKeyboard [][]tele.ReplyButton) (Button, error) {
+func (b Button) FromDB(dbButton *dbmodels.Button) (Button, error) {
 	btnMessage, err := FloodMessageFromDBButton(dbButton)
 	if err != nil {
 		fmt.Println("can't extract data from button", dbButton.Name)
 		return Button{}, err
-	}
-
-	btnMessage.SendOptions.ReplyMarkup = &tele.ReplyMarkup{
-		ReplyKeyboard: replyKeyboard,
 	}
 
 	button := Button{
@@ -136,11 +121,11 @@ type Buttons struct {
 	sync.RWMutex
 	hash          string
 	replyKeyboard [][]tele.ReplyButton
-	buttons       []Button
+	buttons       map[string]Button
 }
 
-func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button, bot *tele.Bot) {
-	newButtons := []Button{}
+func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button) {
+	newButtons := make(map[string]Button)
 	replyKeyboard := [][]tele.ReplyButton{}
 
 	for _, b := range dbButtons {
@@ -150,13 +135,12 @@ func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button, bot *tele.Bot) {
 	}
 
 	for _, b := range dbButtons {
-		newButton, err := Button{}.FromDB(b, replyKeyboard)
+		newButton, err := Button{}.FromDB(b)
 		if err != nil {
 			continue
 		}
 
-		bot.Handle(newButton.B.Text, newButton.HandlerFunc())
-		newButtons = append(newButtons, newButton)
+		newButtons[newButton.B.Text] = newButton
 	}
 
 	bs.buttons = newButtons
@@ -166,11 +150,6 @@ func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button, bot *tele.Bot) {
 func (bs *Buttons) UpdateButtons(db *pg.PG, bot *tele.Bot) error {
 	bs.Lock()
 	defer bs.Unlock()
-
-	// db buttons could be:
-	// 1. nil, which should produce error and update should be aborted
-	// 2. len(dbButtons) == 0, which should remove current buttons
-	// 3. len(dbButtons) > 0, which should remove old buttons and set new buttons
 
 	dbButtons, err := db.GetButtons()
 	if err != nil {
@@ -206,20 +185,8 @@ func (bs *Buttons) UpdateButtons(db *pg.PG, bot *tele.Bot) error {
 	switch {
 	case len(dbButtons) == 0 && bs.buttons != nil:
 		bs.buttons = nil
-
-		for _, b := range bs.buttons {
-			// remove handlers for removed buttons
-			bot.Handle(b.B.Text, func(c tele.Context) error { return nil })
-		}
-	case len(dbButtons) > 0 && bs.buttons != nil:
-		for _, b := range bs.buttons {
-			// remove handlers for removed buttons
-			bot.Handle(b.B.Text, func(c tele.Context) error { return nil })
-		}
-
-		bs.updateButtons(dbButtons, bot)
-	case len(dbButtons) > 0 && bs.buttons == nil:
-		bs.updateButtons(dbButtons, bot)
+	case len(dbButtons) > 0:
+		bs.updateButtons(dbButtons)
 	}
 
 	bs.hash = hashStr
@@ -228,8 +195,14 @@ func (bs *Buttons) UpdateButtons(db *pg.PG, bot *tele.Bot) error {
 }
 
 func (bs *Buttons) ReplyKeyboard() [][]tele.ReplyButton {
-	bs.RLock()
-	defer bs.RUnlock()
-
 	return bs.replyKeyboard
+}
+
+func (bs *Buttons) Button(name string) (*Button, error) {
+	button, ok := bs.buttons[name]
+	if !ok {
+		return nil, errors.New("button with that name does not exist")
+	}
+
+	return &button, nil
 }
