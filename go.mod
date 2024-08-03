@@ -5,7 +5,7 @@ go 1.22.3
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
-	github.com/maxnrm/teleflood v0.0.1
+	github.com/maxnrm/teleflood v0.0.2
 	github.com/minio/minio-go/v7 v7.0.74
 	github.com/nats-io/nats.go v1.36.0
 	go.uber.org/ratelimit v0.3.1

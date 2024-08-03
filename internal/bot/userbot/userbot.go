@@ -4,6 +4,7 @@ import (
 	"context"
 	"dobrino/config"
 	"dobrino/internal/helpers"
+	"dobrino/internal/models"
 	"dobrino/internal/pg"
 	"dobrino/internal/sendlimiter"
 	"fmt"
@@ -14,85 +15,68 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-type ButtonDataMap struct {
-	Button tele.ReplyButton
-	Data
-}
-
 var ctx = context.Background()
-var db = pg.Init(config.POSTGRES_CONN_STRING)
 var limit = config.RATE_LIMIT_GLOBAL
 var sl = sendlimiter.Init(ctx, limit, limit)
-var gButtons *[][]tele.ReplyButton
+var db = pg.Init(config.POSTGRES_CONN_STRING)
+
 var buttonsRL = ratelimit.New(1, ratelimit.Per(2*time.Second), ratelimit.WithoutSlack)
-var defaultOpts = tele.SendOptions{
-	ParseMode: tele.ModeHTML,
+
+type WrappedTelebot struct {
+	db      *pg.PG
+	bot     *tele.Bot
+	buttons *models.Buttons
 }
 
-func Init() *tele.Bot {
+func (wt *WrappedTelebot) Start() {
+	go func() {
+		for {
+			buttonsRL.Take()
+			wt.buttons.UpdateButtons(wt.db, wt.bot)
+		}
+	}()
+
+	wt.bot.Start()
+	defer wt.bot.Stop()
+}
+
+func Init() *WrappedTelebot {
 
 	token := config.USER_BOT_TOKEN
 
 	log.Println("bot token:", token)
 
 	bot, err := tele.NewBot(tele.Settings{
-		Token:  token,
-		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+		Token:     token,
+		ParseMode: tele.ModeHTML,
+		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	go func() {
-		buttonsRL.Take()
-		gButtons = updateButtons()
-	}()
 
 	bot.Use(helpers.RateLimit(sl))
 	bot.Use(helpers.BotMiniLogger())
 	// bot.Use(CheckAuthorize())
 
 	bot.Handle("/id", idHandler)
-	bot.Handle("/start", startHandler)
 
-	return bot
-}
+	buttons, err := models.InitButtons(&db, bot)
+	if err != nil {
+		panic(err)
+	}
 
-func startHandler(c tele.Context) error {
-	c.Send("Start message")
-	return nil
+	wBot := &WrappedTelebot{
+		db:      &db,
+		bot:     bot,
+		buttons: buttons,
+	}
+
+	return wBot
 }
 
 func idHandler(c tele.Context) error {
-
-	fmt.Println(gButtons)
-
-	opts := defaultOpts
-	if gButtons != nil {
-		opts.ReplyMarkup = &tele.ReplyMarkup{
-			ReplyKeyboard: *gButtons,
-		}
-	}
-
-	fmt.Println(opts)
-
-	return c.Send(fmt.Sprintf("%d", c.Chat().ID), &opts)
-}
-
-func updateButtons() (*[][]tele.ReplyButton, error) {
-
-	dbButtons, err := db.GetButtons()
-	if err != nil {
-		return nil, err
-	}
-
-	buttons := [][]tele.ReplyButton{}
-
-	for _, b = range dbButtons {
-		button := tele.ReplyButton{}
-	}
-
-	return &buttons, nil
+	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
 func CheckAuthorize() tele.MiddlewareFunc {
