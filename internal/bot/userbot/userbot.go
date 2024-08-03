@@ -47,9 +47,8 @@ func Init() *WrappedTelebot {
 	log.Println("bot token:", token)
 
 	bot, err := tele.NewBot(tele.Settings{
-		Token:     token,
-		ParseMode: tele.ModeHTML,
-		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
+		Token:  token,
+		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
 		log.Fatal(err)
