@@ -19,19 +19,19 @@ type PG struct {
 
 var DB = Init(config.POSTGRES_CONN_STRING)
 
-func Init(connString string) PG {
+func Init(connString string) *PG {
 
 	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
 	if err != nil {
 		panic(fmt.Sprint("Failed to connect to database at dsn: ", connString))
 	}
 
-	return PG{
+	return &PG{
 		dbquery.Use(db),
 	}
 }
 
-func (pg PG) CreateAdmin(chatId string) error {
+func (pg *PG) CreateAdmin(chatId string) error {
 	values := &dbmodels.Admin{
 		ID:          uuid.New().String(),
 		DateCreated: time.Now(),
@@ -46,7 +46,7 @@ func (pg PG) CreateAdmin(chatId string) error {
 	return nil
 }
 
-func (pg PG) GetAdmin(chatId string) (*dbmodels.Admin, error) {
+func (pg *PG) GetAdmin(chatId string) (*dbmodels.Admin, error) {
 	a := dbquery.Admin
 	admin, err := pg.Admin.Where(a.ChatID.Eq(chatId)).First()
 	if err != nil {
@@ -56,7 +56,7 @@ func (pg PG) GetAdmin(chatId string) (*dbmodels.Admin, error) {
 	return admin, nil
 }
 
-func (pg PG) CreateUser(chatId string) error {
+func (pg *PG) CreateUser(chatId string) error {
 	values := &dbmodels.User{
 		ID:          uuid.New().String(),
 		DateCreated: time.Now(),
@@ -70,7 +70,7 @@ func (pg PG) CreateUser(chatId string) error {
 	return nil
 }
 
-func (pg PG) GetUser(chatId string) (*dbmodels.User, error) {
+func (pg *PG) GetUser(chatId string) (*dbmodels.User, error) {
 	u := pg.User
 	user, err := pg.User.Where(u.ChatID.Eq(chatId)).First()
 	if err != nil {
@@ -80,7 +80,7 @@ func (pg PG) GetUser(chatId string) (*dbmodels.User, error) {
 	return user, nil
 }
 
-func (pg PG) GetButtons() ([]*dbmodels.Button, error) {
+func (pg *PG) GetButtons() ([]*dbmodels.Button, error) {
 	b := pg.Button
 	buttons, err := pg.Button.Order(b.Sort.Asc()).Find()
 	if err != nil {

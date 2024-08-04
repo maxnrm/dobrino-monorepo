@@ -55,13 +55,13 @@ func Init() *WrappedTelebot {
 		log.Fatal(err)
 	}
 
-	buttons, err := models.InitButtons(&db, bot)
+	buttons, err := models.InitButtons(db, bot)
 	if err != nil {
 		panic(err)
 	}
 
 	wBot := &WrappedTelebot{
-		db:      &db,
+		db:      db,
 		bot:     bot,
 		buttons: buttons,
 	}
