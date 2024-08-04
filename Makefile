@@ -3,6 +3,10 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
+.PHONY: pulldb
+pulldb:
+	go run scripts/pull_db.go
+
 .PHONY: run
 run:
 	go run cmd/main.go
