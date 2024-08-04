@@ -89,3 +89,25 @@ func (pg *PG) GetButtons() ([]*dbmodels.Button, error) {
 
 	return buttons, err
 }
+
+func (pg *PG) GetBroadcastMessageForSend() (*dbmodels.BroadcastMessage, error) {
+	bm := pg.BroadcastMessage
+	msg, err := pg.BroadcastMessage.Where(bm.IsSent.Is(true)).Where(bm.SendStatus.IsNull()).First()
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
+}
+
+func (pg *PG) SetStatusBroadcastMessages(id int32, status bool) error {
+	bm := pg.BroadcastMessage
+	info, err := pg.BroadcastMessage.Update(bm.SendStatus, status)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(info)
+
+	return nil
+}
