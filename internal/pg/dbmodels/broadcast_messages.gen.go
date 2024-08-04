@@ -8,10 +8,11 @@ const TableNameBroadcastMessage = "broadcast_messages"
 
 // BroadcastMessage mapped from table <broadcast_messages>
 type BroadcastMessage struct {
-	ID      int32   `gorm:"column:id;type:integer;primaryKey;autoIncrement:true" json:"id"`
-	IsSent  bool    `gorm:"column:is_sent;type:boolean;not null" json:"is_sent"`
-	Message *string `gorm:"column:message;type:text" json:"message"`
-	Image   *string `gorm:"column:image;type:uuid" json:"image"`
+	ID         int32   `gorm:"column:id;type:integer;primaryKey;autoIncrement:true" json:"id"`
+	IsSent     *bool   `gorm:"column:is_sent;type:boolean" json:"is_sent"`
+	Message    *string `gorm:"column:message;type:text" json:"message"`
+	Image      *string `gorm:"column:image;type:uuid" json:"image"`
+	SendStatus *bool   `gorm:"column:send_status;type:boolean" json:"send_status"`
 }
 
 // TableName BroadcastMessage's table name

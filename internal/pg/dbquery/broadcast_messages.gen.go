@@ -31,6 +31,7 @@ func newBroadcastMessage(db *gorm.DB, opts ...gen.DOOption) broadcastMessage {
 	_broadcastMessage.IsSent = field.NewBool(tableName, "is_sent")
 	_broadcastMessage.Message = field.NewString(tableName, "message")
 	_broadcastMessage.Image = field.NewString(tableName, "image")
+	_broadcastMessage.SendStatus = field.NewBool(tableName, "send_status")
 
 	_broadcastMessage.fillFieldMap()
 
@@ -40,11 +41,12 @@ func newBroadcastMessage(db *gorm.DB, opts ...gen.DOOption) broadcastMessage {
 type broadcastMessage struct {
 	broadcastMessageDo
 
-	ALL     field.Asterisk
-	ID      field.Int32
-	IsSent  field.Bool
-	Message field.String
-	Image   field.String
+	ALL        field.Asterisk
+	ID         field.Int32
+	IsSent     field.Bool
+	Message    field.String
+	Image      field.String
+	SendStatus field.Bool
 
 	fieldMap map[string]field.Expr
 }
@@ -65,6 +67,7 @@ func (b *broadcastMessage) updateTableName(table string) *broadcastMessage {
 	b.IsSent = field.NewBool(table, "is_sent")
 	b.Message = field.NewString(table, "message")
 	b.Image = field.NewString(table, "image")
+	b.SendStatus = field.NewBool(table, "send_status")
 
 	b.fillFieldMap()
 
@@ -81,11 +84,12 @@ func (b *broadcastMessage) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (b *broadcastMessage) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 4)
+	b.fieldMap = make(map[string]field.Expr, 5)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["is_sent"] = b.IsSent
 	b.fieldMap["message"] = b.Message
 	b.fieldMap["image"] = b.Image
+	b.fieldMap["send_status"] = b.SendStatus
 }
 
 func (b broadcastMessage) clone(db *gorm.DB) broadcastMessage {
