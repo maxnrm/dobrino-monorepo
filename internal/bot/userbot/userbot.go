@@ -47,18 +47,13 @@ func Init() *WrappedTelebot {
 	log.Println("bot token:", token)
 
 	bot, err := tele.NewBot(tele.Settings{
-		Token:  token,
-		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+		Token:     token,
+		ParseMode: tele.ModeHTML,
+		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	bot.Use(helpers.RateLimit(sl))
-	bot.Use(helpers.BotMiniLogger())
-	// bot.Use(CheckAuthorize())
-
-	bot.Handle("/id", idHandler)
 
 	buttons, err := models.InitButtons(&db, bot)
 	if err != nil {
@@ -71,7 +66,41 @@ func Init() *WrappedTelebot {
 		buttons: buttons,
 	}
 
+	bot.Use(helpers.RateLimit(sl))
+	bot.Use(helpers.BotMiniLogger())
+	// bot.Use(CheckAuthorize())
+
+	bot.Handle("/id", idHandler)
+	bot.Handle(tele.OnText, wBot.OnTextHandler())
+
 	return wBot
+}
+
+func (wt *WrappedTelebot) OnTextHandler() tele.HandlerFunc {
+	return func(c tele.Context) error {
+		wt.buttons.RLock()
+		defer wt.buttons.RUnlock()
+
+		text := c.Text()
+
+		replyKeyboard := wt.buttons.ReplyKeyboard()
+		markup := c.Bot().NewMarkup()
+		markup.ResizeKeyboard = true
+
+		if len(replyKeyboard) > 0 {
+			markup.ReplyKeyboard = replyKeyboard
+		} else {
+			markup.RemoveKeyboard = true
+		}
+
+		button, err := wt.buttons.Button(text)
+		if err != nil {
+			c.Bot().Send(c.Recipient(), "Выберите одну из команд на клавиатуре ⬇️", markup)
+			return nil
+		}
+
+		return c.Send(button.FloodMessage, markup)
+	}
 }
 
 func idHandler(c tele.Context) error {
