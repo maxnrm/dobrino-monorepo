@@ -80,6 +80,15 @@ func (pg *PG) GetUser(chatId string) (*dbmodels.User, error) {
 	return user, nil
 }
 
+func (pg *PG) GetUsers() ([]*dbmodels.User, error) {
+	users, err := pg.User.Find()
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (pg *PG) GetButtons() ([]*dbmodels.Button, error) {
 	b := pg.Button
 	buttons, err := pg.Button.Order(b.Sort.Asc()).Find()
