@@ -121,9 +121,9 @@ func (pg *PG) GetBroadcastMessageForSend() (*dbmodels.BroadcastMessage, error) {
 	return msg, nil
 }
 
-func (pg *PG) SetStatusBroadcastMessages(id int32, status bool) error {
+func (pg *PG) SetBroadcastMessageStatus(id int32, status bool) error {
 	bm := pg.BroadcastMessage
-	info, err := pg.BroadcastMessage.Update(bm.SendStatus, status)
+	info, err := pg.BroadcastMessage.Where(bm.ID.Eq(id)).Update(bm.SendStatus, status)
 	if err != nil {
 		return err
 	}

@@ -19,11 +19,13 @@ func (b *Broadcast) Broadcast(bot *tele.Bot, db *pg.PG) error {
 
 	msg, err := floodMessageFromDBBroadcastMessage(dbMsg)
 	if err != nil {
+		db.SetBroadcastMessageStatus(dbMsg.ID, false)
 		return err
 	}
 
 	dbUsers, err := db.GetUsers()
 	if err != nil {
+		db.SetBroadcastMessageStatus(dbMsg.ID, false)
 		return err
 	}
 
@@ -41,6 +43,7 @@ func (b *Broadcast) Broadcast(bot *tele.Bot, db *pg.PG) error {
 		bot.Send(u, msg)
 	}
 
+	db.SetBroadcastMessageStatus(dbMsg.ID, true)
 	return nil
 }
 
