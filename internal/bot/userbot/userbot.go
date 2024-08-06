@@ -22,6 +22,10 @@ var db = pg.Init(config.POSTGRES_CONN_STRING)
 var limit = config.RATE_LIMIT_GLOBAL
 var cronRL = ratelimit.New(1, ratelimit.Per(2*time.Second), ratelimit.WithoutSlack)
 
+var captchaButtonText = "Я не робот"
+var captchaButton = tele.InlineButton{Text: captchaButtonText}
+var captchaReplyMarkup = tele.ReplyMarkup{InlineKeyboard: [][]tele.InlineButton{{captchaButton}}}
+
 type WrappedTelebot struct {
 	db        *pg.PG
 	bot       *tele.Bot
@@ -113,19 +117,25 @@ func CheckAuthorize() tele.MiddlewareFunc {
 	l := log.Default()
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(c tele.Context) error {
-			if c.Message().Text == "Начать" {
+
+			chatId := fmt.Sprint(c.Chat().ID)
+			err := db.IncrementUserInteractions(chatId)
+			if err == nil {
+				l.Println("Юзер", chatId, "авторизован")
 				return next(c)
 			}
 
-			chatID := fmt.Sprint(c.Chat().ID)
-			_, err := db.GetUser(chatID)
-			if err != nil {
-				c.Send("Not authorized")
-				return nil
+			if c.Message().Text == captchaButtonText {
+				err := db.CreateUser(chatId)
+				if err == nil {
+					l.Println("Юзер", chatId, "зарегистрирован")
+					return next(c)
+				}
+				return c.Send("Подтвердите, что вы не робот", captchaReplyMarkup)
 			}
 
-			l.Println("Юзер", chatID, "авторизован")
-			return next(c)
+			l.Println("Юзер", chatId, "НЕ авторизован")
+			return c.Send("Подтвердите, что вы не робот", captchaReplyMarkup)
 		}
 	}
 }
