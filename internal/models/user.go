@@ -7,8 +7,9 @@ import (
 )
 
 type User struct {
-	Id     uuid.UUID
-	ChatId string
+	Id          uuid.UUID
+	ChatId      string
+	Interations int64
 }
 
 func (u User) FromDB(dbUser *dbmodels.User) (*User, error) {
@@ -18,8 +19,9 @@ func (u User) FromDB(dbUser *dbmodels.User) (*User, error) {
 	}
 
 	return &User{
-		Id:     id,
-		ChatId: dbUser.ChatID,
+		Id:          id,
+		ChatId:      dbUser.ChatID,
+		Interations: dbUser.Interactions,
 	}, nil
 }
 

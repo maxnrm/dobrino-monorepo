@@ -57,12 +57,24 @@ func (pg *PG) GetAdmin(chatId string) (*dbmodels.Admin, error) {
 }
 
 func (pg *PG) CreateUser(chatId string) error {
-	values := &dbmodels.User{
+	user := &dbmodels.User{
 		ID:          uuid.New().String(),
 		DateCreated: time.Now(),
 		ChatID:      chatId,
 	}
-	err := pg.User.Create(values)
+
+	err := pg.User.Create(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pg *PG) IncrementUserInteractions(chatId string) error {
+	u := pg.User
+
+	_, err := pg.User.Where(u.ChatID.Eq(chatId)).Update(u.Interactions, u.Interactions.Add(1))
 	if err != nil {
 		return err
 	}

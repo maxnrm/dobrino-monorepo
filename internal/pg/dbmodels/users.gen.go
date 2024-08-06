@@ -12,9 +12,10 @@ const TableNameUser = "users"
 
 // User mapped from table <users>
 type User struct {
-	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
-	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
-	ChatID      string    `gorm:"column:chat_id;type:character varying(255);not null;default:NULL" json:"chat_id"`
+	ID           string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
+	DateCreated  time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
+	ChatID       string    `gorm:"column:chat_id;type:character varying(255);not null;default:NULL" json:"chat_id"`
+	Interactions int64     `gorm:"column:interactions;type:bigint;not null;default:1" json:"interactions"`
 }
 
 // TableName User's table name
