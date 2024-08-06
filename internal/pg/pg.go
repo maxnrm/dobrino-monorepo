@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type PG struct {
@@ -21,7 +22,9 @@ var DB = Init(config.POSTGRES_CONN_STRING)
 
 func Init(connString string) *PG {
 
-	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic(fmt.Sprint("Failed to connect to database at dsn: ", connString))
 	}
