@@ -16,23 +16,25 @@ import (
 )
 
 var ctx = context.Background()
-var limit = config.RATE_LIMIT_GLOBAL
 var sl = sendlimiter.Init(ctx, limit, limit)
 var db = pg.Init(config.POSTGRES_CONN_STRING)
 
-var buttonsRL = ratelimit.New(1, ratelimit.Per(2*time.Second), ratelimit.WithoutSlack)
+var limit = config.RATE_LIMIT_GLOBAL
+var cronRL = ratelimit.New(1, ratelimit.Per(2*time.Second), ratelimit.WithoutSlack)
 
 type WrappedTelebot struct {
-	db      *pg.PG
-	bot     *tele.Bot
-	buttons *models.Buttons
+	db        *pg.PG
+	bot       *tele.Bot
+	buttons   *models.Buttons
+	broadcast *models.Broadcast
 }
 
 func (wt *WrappedTelebot) Start() {
 	go func() {
 		for {
-			buttonsRL.Take()
+			cronRL.Take()
 			wt.buttons.UpdateButtons(wt.db, wt.bot)
+			wt.broadcast.Broadcast(wt.bot, wt.db)
 		}
 	}()
 
