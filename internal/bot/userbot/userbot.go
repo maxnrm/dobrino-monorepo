@@ -33,7 +33,7 @@ func (wt *WrappedTelebot) Start() {
 	go func() {
 		for {
 			cronRL.Take()
-			wt.buttons.UpdateButtons(wt.db, wt.bot)
+			wt.buttons.UpdateButtons(wt.bot, wt.db)
 			wt.broadcast.Broadcast(wt.bot, wt.db)
 		}
 	}()

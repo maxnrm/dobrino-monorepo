@@ -97,7 +97,7 @@ func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button) {
 	bs.replyKeyboard = replyKeyboard
 }
 
-func (bs *Buttons) UpdateButtons(db *pg.PG, bot *tele.Bot) error {
+func (bs *Buttons) UpdateButtons(bot *tele.Bot, db *pg.PG) error {
 	bs.Lock()
 	defer bs.Unlock()
 
