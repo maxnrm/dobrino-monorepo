@@ -126,11 +126,11 @@ func (bs *Buttons) UpdateButtons(bot *tele.Bot, db *pg.PG) error {
 	hashStr := hex.EncodeToString(hash.Sum(nil))
 
 	if hashStr == bs.hash {
-		fmt.Println("hash is the same, returning...")
+		fmt.Println("buttons: hash is the same, returning...")
 		return nil
 	}
 
-	fmt.Println("hash is NOT the same, operating...")
+	fmt.Println("buttons: hash is NOT the same, operating...")
 
 	switch {
 	case len(dbButtons) == 0 && bs.buttons != nil:
