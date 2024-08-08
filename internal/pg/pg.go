@@ -111,12 +111,25 @@ func (pg *PG) GetUsers() ([]*dbmodels.User, error) {
 
 func (pg *PG) GetButtons() ([]*dbmodels.Button, error) {
 	b := pg.Button
+	f := pg.File
 	buttons, err := pg.Button.Order(b.Sort.Asc()).Find()
 	if err != nil {
 		return nil, err
 	}
 
-	return buttons, err
+	for _, button := range buttons {
+		if button.Image != nil {
+			file, err := pg.File.Where(f.ID.Eq(*button.Image)).Take()
+			if err != nil {
+				button.Image = nil
+				continue
+			}
+			// dirty hack to avoid writing excessive logic with another field
+			button.Image = file.FilenameDisk
+		}
+	}
+
+	return buttons, nil
 }
 
 func (pg *PG) GetBroadcastMessageForSend() (*dbmodels.BroadcastMessage, error) {

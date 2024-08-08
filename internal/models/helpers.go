@@ -80,7 +80,7 @@ func floodMessageFromDBButton(dbButton *dbmodels.Button) (*fm.FloodMessage, erro
 
 	switch {
 	case dbButton.Image != nil && dbButton.Message != nil:
-		photoURL := config.IMGPROXY_PUBLIC_URL + *dbButton.Image
+		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *dbButton.Image
 		err := md.Convert([]byte(*dbButton.Message), &msgBuf) // just use it as usual
 		if err != nil {
 			return nil, err
@@ -95,7 +95,7 @@ func floodMessageFromDBButton(dbButton *dbmodels.Button) (*fm.FloodMessage, erro
 
 		return message, nil
 	case dbButton.Image != nil:
-		photoURL := config.IMGPROXY_PUBLIC_URL + *dbButton.Image
+		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *dbButton.Image
 
 		message.Photo = &tele.Photo{
 			File: tele.File{FileURL: photoURL},
