@@ -134,9 +134,19 @@ func (pg *PG) GetButtons() ([]*dbmodels.Button, error) {
 
 func (pg *PG) GetBroadcastMessageForSend() (*dbmodels.BroadcastMessage, error) {
 	bm := pg.BroadcastMessage
+	f := pg.File
 	msg, err := pg.BroadcastMessage.Where(bm.IsSent.Is(true)).Where(bm.SendStatus.IsNull()).First()
 	if err != nil {
 		return nil, err
+	}
+
+	if msg.Image != nil {
+		file, err := pg.File.Where(f.ID.Eq(*msg.Image)).Take()
+		if err != nil {
+			msg.Image = nil
+			return msg, nil
+		}
+		msg.Image = file.FilenameDisk
 	}
 
 	return msg, nil
