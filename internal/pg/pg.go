@@ -2,6 +2,7 @@ package pg
 
 import (
 	"dobrino/config"
+	"errors"
 	"fmt"
 	"time"
 
@@ -77,9 +78,13 @@ func (pg *PG) CreateUser(chatId string) error {
 func (pg *PG) IncrementUserInteractions(chatId string) error {
 	u := pg.User
 
-	_, err := pg.User.Where(u.ChatID.Eq(chatId)).Update(u.Interactions, u.Interactions.Add(1))
+	affected, err := pg.User.Where(u.ChatID.Eq(chatId)).Update(u.Interactions, u.Interactions.Add(1))
 	if err != nil {
 		return err
+	}
+
+	if affected.RowsAffected == 0 {
+		return errors.New("interactions update: no rows affected")
 	}
 
 	return nil
@@ -126,12 +131,10 @@ func (pg *PG) GetBroadcastMessageForSend() (*dbmodels.BroadcastMessage, error) {
 
 func (pg *PG) SetBroadcastMessageStatus(id int32, status bool) error {
 	bm := pg.BroadcastMessage
-	info, err := pg.BroadcastMessage.Where(bm.ID.Eq(id)).Update(bm.SendStatus, status)
+	_, err := pg.BroadcastMessage.Where(bm.ID.Eq(id)).Update(bm.SendStatus, status)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(info)
 
 	return nil
 }
