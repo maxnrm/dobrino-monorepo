@@ -23,8 +23,8 @@ var limit = config.RATE_LIMIT_GLOBAL
 var cronRL = ratelimit.New(1, ratelimit.Per(2*time.Second), ratelimit.WithoutSlack)
 
 var captchaButtonText = "Я не робот"
-var captchaButton = tele.InlineButton{Text: captchaButtonText}
-var captchaReplyMarkup = tele.ReplyMarkup{InlineKeyboard: [][]tele.InlineButton{{captchaButton}}}
+var captchaButton = tele.ReplyButton{Text: captchaButtonText}
+var captchaReplyMarkup = &tele.ReplyMarkup{ResizeKeyboard: true, ReplyKeyboard: [][]tele.ReplyButton{{captchaButton}}}
 
 type WrappedTelebot struct {
 	db        *pg.PG
@@ -74,7 +74,7 @@ func Init() *WrappedTelebot {
 
 	bot.Use(helpers.RateLimit(sl))
 	bot.Use(helpers.BotMiniLogger())
-	// bot.Use(CheckAuthorize())
+	bot.Use(CheckAuthorize())
 
 	bot.Handle("/id", idHandler)
 	bot.Handle(tele.OnText, wBot.OnTextHandler())
