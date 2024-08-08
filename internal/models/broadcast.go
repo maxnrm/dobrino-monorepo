@@ -48,7 +48,10 @@ func (b *Broadcast) Broadcast(bot *tele.Bot, db *pg.PG) error {
 		bot.Send(u, msg)
 	}
 
+	usersNumber := len(dbUsers)
+
 	db.SetBroadcastMessageStatus(dbMsg.ID, true)
+	fmt.Println("broadcast: message sent to ", usersNumber)
 	return nil
 }
 

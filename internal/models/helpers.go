@@ -27,7 +27,7 @@ func floodMessageFromDBBroadcastMessage(dbMessage *dbmodels.BroadcastMessage) (*
 
 	switch {
 	case dbMessage.Image != nil && dbMessage.Message != nil:
-		photoURL := config.IMGPROXY_PUBLIC_URL + *dbMessage.Image
+		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *dbMessage.Image
 		err := md.Convert([]byte(*dbMessage.Message), &msgBuf)
 		if err != nil {
 			return nil, err
@@ -42,7 +42,7 @@ func floodMessageFromDBBroadcastMessage(dbMessage *dbmodels.BroadcastMessage) (*
 
 		return message, nil
 	case dbMessage.Image != nil:
-		photoURL := config.IMGPROXY_PUBLIC_URL + *dbMessage.Image
+		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *dbMessage.Image
 
 		message.Photo = &tele.Photo{
 			File: tele.File{FileURL: photoURL},
