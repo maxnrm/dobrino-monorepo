@@ -11,6 +11,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/maxnrm/teleflood/pkg/sender"
 	"go.uber.org/ratelimit"
 	tele "gopkg.in/telebot.v3"
 )
@@ -38,7 +39,7 @@ func (wt *WrappedTelebot) Start() {
 		for {
 			cronRL.Take()
 			wt.buttons.UpdateButtons(wt.bot, wt.db)
-			wt.broadcast.Broadcast(wt.bot, wt.db)
+			wt.broadcast.Broadcast()
 		}
 	}()
 
@@ -66,10 +67,14 @@ func Init() *WrappedTelebot {
 		panic(err)
 	}
 
+	broadcastRL := ratelimit.New(config.RATE_LIMIT_BROADCAST, ratelimit.Per(1*time.Second), ratelimit.WithoutSlack)
+	broadcastSender, _ := sender.New(bot, broadcastRL)
+	broadcast := models.NewBroadcast(db, broadcastSender)
 	wBot := &WrappedTelebot{
-		db:      db,
-		bot:     bot,
-		buttons: buttons,
+		db:        db,
+		bot:       bot,
+		buttons:   buttons,
+		broadcast: broadcast,
 	}
 
 	bot.Use(helpers.RateLimit(sl))

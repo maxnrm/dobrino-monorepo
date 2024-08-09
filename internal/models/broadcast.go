@@ -5,15 +5,23 @@ import (
 	"errors"
 	"fmt"
 
-	tele "gopkg.in/telebot.v3"
+	s "github.com/maxnrm/teleflood/pkg/sender"
 )
 
 type Broadcast struct {
-	// broadcastMessages []BroadcastMessage
+	db     *pg.PG
+	sender *s.Sender
 }
 
-func (b *Broadcast) Broadcast(bot *tele.Bot, db *pg.PG) error {
-	dbMsg, err := db.GetBroadcastMessageForSend()
+func NewBroadcast(db *pg.PG, sender *s.Sender) *Broadcast {
+	return &Broadcast{
+		db:     db,
+		sender: sender,
+	}
+}
+
+func (b *Broadcast) Broadcast() error {
+	dbMsg, err := b.db.GetBroadcastMessageForSend()
 	if err != nil {
 		fmt.Println("broadcast: failed to get message to broadcast. error:", err)
 		return err
@@ -21,20 +29,20 @@ func (b *Broadcast) Broadcast(bot *tele.Bot, db *pg.PG) error {
 
 	msg, err := floodMessageFromDBBroadcastMessage(dbMsg)
 	if err != nil {
-		db.SetBroadcastMessageStatus(dbMsg.ID, false)
+		b.db.SetBroadcastMessageStatus(dbMsg.ID, false)
 		fmt.Println("broadcast: failed to parse message. error:", err)
 		return err
 	}
 
-	dbUsers, err := db.GetUsers()
+	dbUsers, err := b.db.GetUsers()
 	if err != nil {
-		db.SetBroadcastMessageStatus(dbMsg.ID, false)
+		b.db.SetBroadcastMessageStatus(dbMsg.ID, false)
 		fmt.Println("broadcast: failed to get users. error:", err)
 		return err
 	}
 
 	if len(dbUsers) == 0 {
-		db.SetBroadcastMessageStatus(dbMsg.ID, false)
+		b.db.SetBroadcastMessageStatus(dbMsg.ID, false)
 		err := errors.New("no users to broadcase message to")
 		fmt.Println("broadcast: erorr:", err)
 		return err
@@ -45,12 +53,12 @@ func (b *Broadcast) Broadcast(bot *tele.Bot, db *pg.PG) error {
 		if err != nil {
 			continue
 		}
-		bot.Send(u, msg)
+		b.sender.Send(u, msg, msg.SendOptions)
 	}
 
 	usersNumber := len(dbUsers)
 
-	db.SetBroadcastMessageStatus(dbMsg.ID, true)
+	b.db.SetBroadcastMessageStatus(dbMsg.ID, true)
 	fmt.Println("broadcast: message sent to ", usersNumber)
 	return nil
 }
