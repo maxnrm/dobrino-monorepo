@@ -312,8 +312,8 @@ github.com/mattn/go-sqlite3 v1.14.15/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S
 github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=
 github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/maxnrm/teleflood v0.0.7 h1:DpYrPIhLzVEbEbs1DxHLGE65wf+FvB7IRmM/3l2hElg=
-github.com/maxnrm/teleflood v0.0.7/go.mod h1:k++yh1GaLyIUyTdB+4k6axxvVvlDFR4aFSFvAZE9/rY=
+github.com/maxnrm/teleflood v0.0.8 h1:T76me+wJijxCdNtWhZRNrQcPN/nMMqo1wmzWQUjTFfA=
+github.com/maxnrm/teleflood v0.0.8/go.mod h1:k++yh1GaLyIUyTdB+4k6axxvVvlDFR4aFSFvAZE9/rY=
 github.com/microsoft/go-mssqldb v0.17.0 h1:Fto83dMZPnYv1Zwx5vHHxpNraeEaUlQ/hhHLgZiaenE=
 github.com/microsoft/go-mssqldb v0.17.0/go.mod h1:OkoNGhGEs8EZqchVTtochlXruEhEOaO4S0d2sB5aeGQ=
 github.com/miekg/dns v1.1.26/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=

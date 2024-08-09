@@ -72,7 +72,7 @@ func Init() *WrappedTelebot {
 	broadcastSender, _ := sender.New(bot, broadcastRL)
 	broadcast := models.NewBroadcast(db, broadcastSender)
 
-	globalRL := ratelimit.New(config.RATE_LIMIT_GLOBAL, ratelimit.Per(1*time.Second), ratelimit.WithoutSlack)
+	globalRL := ratelimit.New(config.RATE_LIMIT_GLOBAL, ratelimit.Per(1*time.Second), ratelimit.WithSlack(2))
 	globalSender, _ := sender.New(bot, globalRL)
 	wBot := &WrappedTelebot{
 		db:        db,
@@ -115,7 +115,12 @@ func (wt *WrappedTelebot) OnTextHandler() tele.HandlerFunc {
 			return nil
 		}
 
-		return c.Send(button.FloodMessage, markup)
+		opts := &tele.SendOptions{
+			ReplyMarkup: markup,
+			ParseMode:   tele.ModeHTML,
+		}
+
+		return wt.sender.Send(c.Chat(), button.FloodMessage, opts)
 	}
 }
 
