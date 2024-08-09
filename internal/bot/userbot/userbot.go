@@ -32,13 +32,14 @@ type WrappedTelebot struct {
 	bot       *tele.Bot
 	buttons   *models.Buttons
 	broadcast *models.Broadcast
+	sender    *sender.Sender
 }
 
 func (wt *WrappedTelebot) Start() {
 	go func() {
 		for {
 			cronRL.Take()
-			wt.buttons.UpdateButtons(wt.bot, wt.db)
+			wt.buttons.UpdateButtons()
 			wt.broadcast.Broadcast()
 		}
 	}()
@@ -62,7 +63,7 @@ func Init() *WrappedTelebot {
 		log.Fatal(err)
 	}
 
-	buttons, err := models.InitButtons(db, bot)
+	buttons, err := models.InitButtons(db)
 	if err != nil {
 		panic(err)
 	}
@@ -70,11 +71,15 @@ func Init() *WrappedTelebot {
 	broadcastRL := ratelimit.New(config.RATE_LIMIT_BROADCAST, ratelimit.Per(1*time.Second), ratelimit.WithoutSlack)
 	broadcastSender, _ := sender.New(bot, broadcastRL)
 	broadcast := models.NewBroadcast(db, broadcastSender)
+
+	globalRL := ratelimit.New(config.RATE_LIMIT_GLOBAL, ratelimit.Per(1*time.Second), ratelimit.WithoutSlack)
+	globalSender, _ := sender.New(bot, globalRL)
 	wBot := &WrappedTelebot{
 		db:        db,
 		bot:       bot,
 		buttons:   buttons,
 		broadcast: broadcast,
+		sender:    globalSender,
 	}
 
 	bot.Use(helpers.RateLimit(sl))

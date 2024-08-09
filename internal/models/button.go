@@ -15,32 +15,12 @@ import (
 
 var hashStartStr = "hashstart"
 
-func InitButtons(db *pg.PG, bot *tele.Bot) (*Buttons, error) {
-	dbButtons, err := db.GetButtons()
-	if err != nil {
-		return nil, err
+func InitButtons(db *pg.PG) (*Buttons, error) {
+	bs := &Buttons{
+		db: db,
 	}
 
-	bs := &Buttons{}
-
-	hash := fnv.New32()
-	hash.Write([]byte(hashStartStr))
-	for _, b := range dbButtons {
-		msg := ""
-		img := ""
-		if b.Message != nil {
-			msg = *b.Message
-		}
-		if b.Image != nil {
-			img = *b.Image
-		}
-
-		hash.Write([]byte(b.Name + msg + img + fmt.Sprint(b.Sort)))
-	}
-
-	bs.hash = hex.EncodeToString(hash.Sum(nil))
-
-	bs.updateButtons(dbButtons)
+	bs.UpdateButtons()
 
 	return bs, nil
 }
@@ -72,6 +52,7 @@ type Buttons struct {
 	hash          string
 	replyKeyboard [][]tele.ReplyButton
 	buttons       map[string]Button
+	db            *pg.PG
 }
 
 func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button) {
@@ -97,11 +78,11 @@ func (bs *Buttons) updateButtons(dbButtons []*dbmodels.Button) {
 	bs.replyKeyboard = replyKeyboard
 }
 
-func (bs *Buttons) UpdateButtons(bot *tele.Bot, db *pg.PG) error {
+func (bs *Buttons) UpdateButtons() error {
 	bs.Lock()
 	defer bs.Unlock()
 
-	dbButtons, err := db.GetButtons()
+	dbButtons, err := bs.db.GetButtons()
 	if err != nil {
 		return err
 	}
