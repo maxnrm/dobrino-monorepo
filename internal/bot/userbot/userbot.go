@@ -132,6 +132,9 @@ func CheckAuthorize() tele.MiddlewareFunc {
 	l := log.Default()
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(c tele.Context) error {
+			if c.Message().Text == "/start" {
+				next(c)
+			}
 
 			chatId := fmt.Sprint(c.Chat().ID)
 			err := db.IncrementUserInteractions(chatId)
