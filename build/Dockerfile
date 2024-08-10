@@ -10,15 +10,15 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o ./out/bot-user ./cmd/bot-user
+RUN go build -o ./out/bot ./cmd
 
 #DEPLOY
 FROM alpine:3.19 
 RUN apk add ca-certificates
 
-COPY --from=build_base /tmp/build/out/bot-user /app/bot-user
+COPY --from=build_base /tmp/build/out/bot /app/bot
 
 EXPOSE 3000
 
 WORKDIR /app
-ENTRYPOINT ["/app/bot-user"]
+ENTRYPOINT ["/app/bot"]
