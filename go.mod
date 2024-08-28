@@ -5,7 +5,7 @@ go 1.22.3
 require (
 	github.com/google/uuid v1.6.0
 	github.com/leonid-shevtsov/telegold v0.0.0-20221113220506-36dc899eb9ea
-	github.com/maxnrm/teleflood v0.0.8
+	github.com/maxnrm/teleflood v0.0.12
 	github.com/nats-io/nats.go v1.36.0
 	github.com/yuin/goldmark v1.7.4
 	go.uber.org/ratelimit v0.3.1
