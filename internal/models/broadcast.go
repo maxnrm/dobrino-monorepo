@@ -23,7 +23,7 @@ func NewBroadcast(db *pg.PG, sender *s.Sender) *Broadcast {
 func (b *Broadcast) Broadcast() error {
 	dbMsg, err := b.db.GetBroadcastMessageForSend()
 	if err != nil {
-		fmt.Println("broadcast: failed to get message to broadcast. error:", err)
+		// fmt.Println("broadcast: failed to get message to broadcast. error:", err)
 		return err
 	}
 
